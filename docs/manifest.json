@@ -1,0 +1,10 @@
+{
+  "name": "申請済みバンド",
+  "short_name": "申請済みバンド",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f4f6",
+  "theme_color": "#f4f4f6"
+}

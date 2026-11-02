@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f4f4f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121214" media="(prefers-color-scheme: dark)">
+<title>申請済みバンド</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--bg:#f4f4f6;--card:#fff;--fg:#1c1c1e;--sub:#6b6b73;--line:#dedee3;--acc:#2f6fdb;--chip:#fdecec;--chip-fg:#b3261e;--ok:#1e7d45;--warn:#8a5300;--warn-bg:#fff3d6;--bl:93%;--bf:35%}
+@media (prefers-color-scheme:dark){:root{--bg:#121214;--card:#1d1d20;--fg:#ececf0;--sub:#9d9da6;--line:#323238;--acc:#7aa7ff;--chip:#3d2426;--chip-fg:#ffb4ab;--ok:#6fd49a;--warn:#ffd27a;--warn-bg:#3a2e12;--bl:22%;--bf:80%}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;overflow-wrap:anywhere}
+button,input{font:inherit;color:inherit}
+.wrap{max-width:1120px;margin:0 auto}
+header{position:sticky;top:0;z-index:2;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 16px}
+.top{display:flex;align-items:center;gap:8px}
+h1{flex:none;font-size:17px;margin:0;white-space:nowrap}
+#st{flex:1;text-align:right;font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#st b{font-size:15px;color:var(--fg)}
+#rf{flex:none;min-width:40px;min-height:36px;padding:6px 8px;border:1px solid var(--line);border-radius:9px;background:var(--card);cursor:pointer}
+#rf span{display:inline-block}
+#rf.spin span{animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#warn{margin:8px 0 0;padding:4px 10px;border-radius:8px;font-size:12px;background:var(--warn-bg);color:var(--warn)}
+#q{display:block;width:100%;min-height:38px;margin-top:8px;padding:6px 10px;border:1px solid var(--line);border-radius:9px;background:var(--card);font-size:16px}
+main{padding:12px 16px 48px}
+.empty{color:var(--sub);font-size:13px;text-align:center;padding:32px 0}
+#res{font-size:13px;color:var(--sub);margin:0 0 10px}
+#res b{color:var(--fg)}
+.lk{border:0;background:none;padding:0 0 0 8px;color:var(--acc);cursor:pointer;text-decoration:underline}
+#list{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr));align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;content-visibility:auto;contain-intrinsic-size:auto 170px}
+.hd{display:flex;align-items:flex-start;gap:8px}
+.no{flex:none;font-size:12px;color:var(--sub);padding-top:3px;font-variant-numeric:tabular-nums}
+h2{flex:1;min-width:0;font-size:17px;line-height:1.35;margin:0}
+.bd{flex:none;font-size:11px;padding:2px 8px;margin-top:2px;border-radius:99px;background:hsl(var(--h) 75% var(--bl));color:hsl(var(--h) 60% var(--bf))}
+.ld{margin:2px 0 6px;font-size:13px;color:var(--sub)}
+.mem{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px 12px;font-size:14px}
+.mem div{display:flex;gap:6px;min-width:0}
+.mem .w{grid-column:1/-1}
+.pt{flex:none;width:2.7em;padding-top:2px;font-size:12px;color:var(--sub)}
+.mem small{color:var(--sub)}
+.nm{border:0;background:none;padding:0;cursor:pointer;text-align:left;text-decoration:underline dotted var(--sub);text-underline-offset:3px}
+.ld .nm{color:var(--fg)}
+.un{margin:8px 0 0;padding-top:6px;border-top:1px solid var(--line);font-size:13px}
+.un summary{display:flex;gap:8px;cursor:pointer;color:var(--sub);list-style:none;min-height:24px;align-items:center}
+.un summary::-webkit-details-marker{display:none}
+.un summary::before{content:"▸";transition:transform .15s}
+.un[open] summary::before{transform:rotate(90deg)}
+.sm{display:flex;flex-wrap:wrap;gap:0 8px}
+.sm b{color:var(--chip-fg);margin-left:1px}
+.sm em{font-style:normal;opacity:.6;margin-left:1px}
+.day{display:flex;gap:8px;margin-top:5px}
+.day>span:first-child{flex:none;width:5em;font-size:12px;color:var(--sub);padding-top:1px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chips i{font-style:normal;font-size:12px;line-height:20px;padding:0 6px;border-radius:6px;background:var(--chip);color:var(--chip-fg)}
+.un.ok{color:var(--ok)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="top">
+    <h1>申請済みバンド</h1>
+    <span id="st"></span>
+    <button id="rf" aria-label="最新の情報に更新" title="更新"><span>↻</span></button>
+  </div>
+  <p id="warn" hidden></p>
+  <input id="q" type="search" placeholder="バンド名・メンバー名で検索" aria-label="バンド名・メンバー名で検索" autocomplete="off" enterkeyhint="search">
+</div></header>
+<main class="wrap">
+  <p id="msg" class="empty" hidden></p>
+  <p id="res"></p>
+  <div id="list"></div>
+</main>
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzgWa6QgvecsSPc7etTpzz1VQ7sHyWwcvqz9ug7OlZ81oNU5ayCYc4piVIbRkCkyCxA/exec"; // GAS ウェブアプリのURL（…/exec）を貼る。空ならモックデータで表示
+
+const KEY = 'gl-data', POLL = [60, 120, 300], HUES = [214, 150, 30, 280, 350];
+const PARTS = [['vo', 'Vo.'], ['g1', 'Gt.1'], ['g2', 'Gt.2'], ['ba', 'Ba.'], ['dr', 'Dr.'], ['kb', 'Key.']];
+const el = {};
+'st rf warn q msg res list'.split(' ').forEach(k => el[k] = document.getElementById(k));
+
+let data = null, bands = [], days = [], forms = [], ver = '', synced = 0, fails = 0, busy = false, timer = 0;
+const opened = new Set(); // 手で開いたカードの番号（自動更新で閉じないように覚えておく）
+
+function get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
+function put(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+const esc = s => String(s).replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
+// 検索用：全角半角・大文字小文字・カタカナひらがな・空白の違いを吸収
+const norm = s => String(s).normalize('NFKC').toLowerCase().replace(/[ァ-ヶ]/g, c => String.fromCharCode(c.charCodeAt(0) - 96)).replace(/\s+/g, '');
+const wd = d => (/\((.+?)\)/.exec(d) || [, d])[1];
+function fmt(ms) {
+  const d = new Date(ms), today = d.toDateString() === new Date().toDateString();
+  return (today ? '' : d.getMonth() + 1 + '/' + d.getDate() + ' ') + d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
+function setData(d) {
+  data = d; ver = d.v || ''; days = d.d || [];
+  forms = [...new Set(d.b.map(b => b.f).filter(Boolean))];
+  bands = d.b.map((b, i) => {
+    const u = days.map((_, j) => (b.u && b.u[j]) || []);
+    return Object.assign({}, b, {
+      i: i + 1, u, nu: u.reduce((s, a) => s + a.length, 0),
+      s: ['c', 'f', 'l', 'vo', 'g1', 'g2', 'ba', 'dr', 'kb', 'ot'].map(k => norm(b[k] || '')).join('\n'),
+    });
+  });
+  render();
+}
+
+function card(b, open) {
+  const nm = s => `<button class="nm" data-q="${esc(s)}">${esc(s)}</button>`;
+  const mem = PARTS.filter(([k]) => b[k]).map(([k, p]) =>
+    `<div><span class="pt">${p}</span><span>${nm(b[k])}${k === 'vo' && b.vp ? `<small>（${esc(b.vp)}）</small>` : ''}</span></div>`).join('') +
+    (b.ot ? `<div class="w"><span class="pt">他</span><span>${esc(b.ot)}</span></div>` : '');
+  const un = b.nu
+    ? `<details class="un" data-i="${b.i}"${open || opened.has(b.i) ? ' open' : ''}><summary>不可時間<span class="sm">${
+        days.map((d, j) => `<span>${esc(wd(d))}${b.u[j].length ? `<b>${b.u[j].length}</b>` : '<em>0</em>'}</span>`).join('')}</span></summary>${
+        days.map((d, j) => `<div class="day"><span>${esc(d)}</span><span class="chips">${
+          b.u[j].length ? b.u[j].map(t => `<i>${esc(t)}</i>`).join('') : '—'}</span></div>`).join('')}</details>`
+    : '<p class="un ok">不可時間なし</p>';
+  return `<article class="card"><div class="hd"><span class="no">#${b.i}</span><h2>${esc(b.c || '（バンド名未入力）')}</h2>${
+    b.f ? `<span class="bd" style="--h:${HUES[forms.indexOf(b.f) % HUES.length]}">${esc(b.f)}</span>` : ''}</div>${
+    b.l ? `<p class="ld">リーダー ${nm(b.l)}</p>` : ''}${mem ? `<div class="mem">${mem}</div>` : ''}${un}</article>`;
+}
+
+// 検索中は、申請した人が回答内容をそのまま確認できるよう不可時間も開いて表示する
+function render() {
+  if (!data) return;
+  const terms = el.q.value.split(/\s+/).map(norm).filter(Boolean);
+  const r = bands.filter(b => terms.every(w => b.s.includes(w)));
+  el.res.innerHTML = !bands.length ? ''
+    : terms.length ? `${bands.length}組中 <b>${r.length}</b>組<button class="lk" id="clr">検索をクリア</button>`
+    : `全 <b>${bands.length}</b> 組。バンド名や自分の名前で検索すると、不可時間まで表示されます。`;
+  el.list.innerHTML = r.length ? r.map(b => card(b, terms.length > 0)).join('')
+    : `<p class="empty">${bands.length ? '該当するバンドはありません。<br>送信した直後は、表示されるまで1〜2分かかることがあります。' : 'まだ申請はありません。'}</p>`;
+}
+
+function status() {
+  const t = synced ? fmt(synced) : '';
+  el.st.innerHTML = (data ? `<b>${bands.length}</b> 組` : '') + (t ? `・${t} 更新` : '');
+  const w = !API_URL ? 'モックデータを表示中（API_URL が未設定）'
+    : !navigator.onLine ? 'オフライン表示中' + (t ? `（最終更新 ${t}）` : '')
+    : fails ? '更新に失敗しました' + (t ? `（最終更新 ${t}）` : '') : '';
+  el.warn.textContent = w; el.warn.hidden = !w;
+  el.rf.classList.toggle('spin', busy);
+  el.msg.hidden = !!data;
+  el.msg.textContent = busy || (navigator.onLine && !fails) ? '読み込み中…' : 'データを取得できませんでした。電波の良い場所で ↻ を押してください。';
+}
+
+function schedule() {
+  clearTimeout(timer);
+  if (API_URL && !document.hidden && navigator.onLine) timer = setTimeout(load, POLL[Math.min(fails, 2)] * 1000);
+}
+async function load() {
+  clearTimeout(timer);
+  if (!API_URL || busy || !navigator.onLine) return status();
+  busy = true; status();
+  const ac = new AbortController(), to = setTimeout(() => ac.abort(), 10000);
+  try {
+    const q = ver ? (API_URL.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(ver) : '';
+    const r = await fetch(API_URL + q, { signal: ac.signal, cache: 'no-store' });
+    if (!r.ok) throw r.status;
+    const j = await r.json();
+    if (!j.nm) {
+      if (!Array.isArray(j.b)) throw 'bad';
+      setData(j);
+    }
+    synced = Date.now(); fails = 0;
+    put(KEY, { d: data, s: synced });
+  } catch (e) {
+    fails++;
+  }
+  clearTimeout(to); busy = false;
+  status(); schedule();
+}
+
+document.addEventListener('click', e => {
+  // summary のクリック時点では open は切り替わる前の値。検索による自動展開は記録しない
+  const s = e.target.closest('summary');
+  if (s) {
+    const d = s.parentNode, i = +d.dataset.i;
+    d.open ? opened.delete(i) : opened.add(i);
+    return;
+  }
+  const t = e.target.closest('[data-q],#clr,#rf');
+  if (!t) return;
+  if (t.id === 'rf') API_URL ? load() : render();
+  else { el.q.value = t.id === 'clr' ? '' : t.dataset.q; render(); scrollTo(0, 0); }
+});
+el.q.addEventListener('input', render);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) clearTimeout(timer);
+  else if (Date.now() - synced > 60000) load();
+  else schedule();
+});
+addEventListener('online', load);
+addEventListener('offline', () => { clearTimeout(timer); status(); });
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+
+// API_URL 未設定時の表示確認用。サンプル行＋80組前後を想定したダミー
+function mock() {
+  const d = ['3/11(木)', '3/12(金)', '3/13(土)', '3/14(日)'], T = [];
+  for (let m = 540; m <= 1230; m += 30) T.push(Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0') + '~');
+  const N = '佐藤 鈴木 高橋 田中 伊藤 渡辺 山本 中村 小林 加藤 吉田 山田 佐々木 山口 松本 井上 木村 清水 森 池田'.split(' ');
+  let seed = 7;
+  const rnd = n => (seed = seed * 16807 % 2147483647) % n, p = () => N[rnd(N.length)];
+  const b = [{ f: '通常バンド', c: 'あああああああああああ', l: 'あ', vo: 'あ', vp: 'ピン', g1: 'い', g2: 'う', ba: 'え', dr: 'お', kb: 'か', ot: 'き(トランペット)',
+    u: [['9:00~', '9:30~', '11:00~'], ['9:00~', '11:00~'], ['9:30~', '11:00~', '12:00~'], ['11:30~', '13:00~']] }];
+  for (let i = 2; i <= 80; i++) {
+    const x = { f: rnd(6) ? '通常バンド' : '企画バンド', c: 'コピーバンド' + i, l: p(), vo: p(), vp: rnd(2) ? 'ピン' : 'Gt.Vo', g1: p(), ba: p(), dr: p(),
+      u: d.map(() => T.filter(() => !rnd(7))) };
+    if (rnd(2)) x.g2 = p();
+    if (!rnd(3)) x.kb = p();
+    if (!rnd(8)) x.ot = p() + '(サックス)';
+    if (i % 13 === 0) x.c = 'とても長いバンド名のテストVeryLongBandNameWithoutAnySpaces' + i;
+    if (i % 11 === 0) x.u = [[], [], [], []];
+    if (i === 40) b.push({ c: '空欄だらけのバンド', u: [[], [], [], []] });
+    else b.push(x);
+  }
+  return { v: 'mock', n: b.length, d, b };
+}
+
+if (!API_URL) {
+  synced = Date.now(); setData(mock()); status();
+} else {
+  const c = get(KEY);
+  if (c && c.d && Array.isArray(c.d.b)) { synced = c.s || 0; setData(c.d); }
+  status(); load();
+}
+</script>
+</body>
+</html>
